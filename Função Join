@@ -1,0 +1,85 @@
+CREATE DATABASE ECE
+USE ECE
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    Email NVARCHAR(100),
+    Country NVARCHAR(50)
+);
+
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    ProductName NVARCHAR(100),
+    Category NVARCHAR(50),
+    Price DECIMAL(10, 2)
+);
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    OrderDate DATE,
+    CustomerID INT,
+    TotalAmount DECIMAL(10, 2),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+CREATE TABLE OrderDetails (
+    OrderDetailID INT PRIMARY KEY,
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    UnitPrice DECIMAL(10, 2),
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+INSERT INTO Customers (CustomerID, FirstName, LastName, Email, Country)
+VALUES 
+(1, 'John', 'Doe', 'john.doe@example.com', 'USA'),
+(2, 'Jane', 'Smith', 'jane.smith@example.com', 'UK'),
+(3, 'Pedro', 'Santos', 'pedro.santos@example.com', 'Brazil');
+
+INSERT INTO Products (ProductID, ProductName, Category, Price)
+VALUES
+(1, 'Laptop', 'Electronics', 1200.00),
+(2, 'Headphones', 'Electronics', 150.00),
+(3, 'Coffee Maker', 'Appliances', 80.00);
+
+INSERT INTO Orders (OrderID, OrderDate, CustomerID, TotalAmount)
+VALUES
+(1, '2024-08-01', 1, 1350.00),
+(2, '2024-08-02', 2, 80.00);
+
+INSERT INTO OrderDetails (OrderDetailID, OrderID, ProductID, Quantity, UnitPrice)
+VALUES
+(1, 1, 1, 1, 1200.00),
+(2, 1, 2, 1, 150.00),
+(3, 2, 3, 1, 80.00);
+
+--INNER JOIN:
+--Exibir todas as informações sobre os pedidos, incluindo detalhes do cliente e dos produtos:
+SELECT Orders.OrderID, Customers.FirstName, Customers.LastName, Products.ProductName, OrderDetails.Quantity, OrderDetails.UnitPrice
+FROM Orders
+INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID
+INNER JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
+INNER JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+
+--LEFT JOIN:
+--Exibir todos os clientes e os pedidos que fizeram, incluindo aqueles que não têm pedidos:
+SELECT Customers.FirstName, Customers.LastName, Orders.OrderID
+FROM Customers
+LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID;
+
+--RIGHT JOIN:
+--Exibir todos os produtos e as quantidades vendidas, incluindo produtos que ainda não foram vendidos:
+SELECT Products.ProductName, OrderDetails.Quantity
+FROM Products
+RIGHT JOIN OrderDetails ON Products.ProductID = OrderDetails.ProductID;
+
+--FULL JOIN:
+--Exibir todos os clientes e produtos, incluindo aqueles que não têm correspondências em pedidos:
+SELECT Customers.FirstName, Products.ProductName, Orders.OrderID
+FROM Customers
+FULL OUTER JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+FULL OUTER JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
+FULL OUTER JOIN Products ON OrderDetails.ProductID = Products.ProductID;
